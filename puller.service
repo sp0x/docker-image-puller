@@ -10,5 +10,5 @@ WorkingDirectory=/media/vasko/Dev/dev/python/docker-image-puller
 User=vasko
 Environment=PYTHONUNBUFFERED=1
 Environment=TOKEN=tgf34vedb34rf23q
-Environment=PATH=/bin/usr/local/sbin:/usr/bin:/usr/sbin
+Environment=PATH=/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/usr/local/bin
 Restart=on-failure
