@@ -1,9 +1,6 @@
 Docker-Compose image puller and deployment trigger
 ===================
 
-[![](https://images.microbadger.com/badges/version/sp0x/docker-image-puller.svg)](https://hub.docker.com/r/sp0x/docker-image-puller/)
-![](https://images.microbadger.com/badges/image/sp0x/docker-image-puller.svg)
-
 ## Overview
 
 If you work with docker and continuous integrations tools, you might need to update your images on your servers as soon as your build is finished.  
