@@ -18,6 +18,14 @@ You just have to run the image on your server, and configure your CI tool or con
 
 ## Installation
 
+### As a Systemd Service
+Place the puller.service in `/etc/systemd/system` and edit your python file locations and user.  
+**Make sure to fill your .env file**  
+Run `sudo systemctl start puller`
+
+
+### As a docker container
+
 Launch the image on your server, where the images you want to update are
 ```
 docker run -d \
