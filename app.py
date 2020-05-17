@@ -12,6 +12,7 @@ from flask import jsonify
 import docker
 from docker_helper import DockerHelper
 import logging
+import travis
 
 app = Flask(__name__)
 client = docker.from_env()
@@ -20,20 +21,35 @@ log.addHandler(logging.StreamHandler())
 log.setLevel(logging.INFO)
 
 
+def getfld(name):
+    val = request.form[name] if name in request.form else None
+    if val is None:
+        val = request.args[name] if name in request.args else None
+    return val
+
+
 @app.route('/')
 def main():
     return jsonify(success=True), 200
 
 
+@app.route("/triggers/build")
+def trigger_build():
+    token = getfld("token")
+    repo = getfld("repo")
+    if not token or not repo:
+        return jsonify(success=False, error="Missing parameters"), 400
+    if token != os.environ['TOKEN']:
+        return jsonify(success=False, error="Invalid token"), 403
+    travis.trigger(repo, "master")
+    return jsonify(success=True, message="Triggered build"), 200
+
+
+
 @app.route('/images/pull', methods=['POST'])
 def image_puller():
-    token_val = request.form['token'] if 'token' in request.form else None
-    if token_val is None:
-        token_val = request.args['token'] if 'token' in request.args else None
-
-    image_val = request.form['image'] if 'image' in request.form else None
-    if image_val is None:
-        image_val = request.args['image'] if 'image' in request.args else None
+    token_val = getfld("token")
+    image_val = getfld("image")
 
     if not token_val or not image_val:
         return jsonify(success=False, error="Missing parameters"), 400
@@ -43,10 +59,7 @@ def image_puller():
     if token_val != os.environ['TOKEN']:
         return jsonify(success=False, error="Invalid token"), 403
 
-    restart_containers = request.form['restart_containers'] if 'restart_containers' in request.form else None
-    if restart_containers is None:
-        restart_containers = request.args['restart_containers'] if 'restart_containers' in request.args else None
-
+    restart_containers = getfld("restart_containers")
     restart_containers = restart_containers == "true"
 
     # Collect the containers
