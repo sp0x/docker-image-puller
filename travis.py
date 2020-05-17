@@ -7,8 +7,9 @@ def trigger(repository, branch):
     body = {
         "request": {"branch": branch}
     }
-    data = json.dumps(body)
-    repository = parse.urlencode(repository)
+    data = json.dumps(body).encode("utf-8")
+    repository = parse.quote(repository)
+    repository = repository.replace("/", "%2F")
     travis_url = f"https://api.travis-ci.com/repo/{repository}/requests"
     travis_token = os.environ["TRAVIS_TOKEN"]
     headers = {
@@ -21,4 +22,5 @@ def trigger(repository, branch):
     req = request.Request(travis_url, data=data, headers=headers)
     resp = request.urlopen(req)
     resp_body = resp.read()
-    return resp_body
+    return resp_body != ""
+    # resp_body = json.loads(resp_body)

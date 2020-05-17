@@ -9,6 +9,5 @@ ExecStart=/usr/bin/python3 /media/vasko/Dev/dev/python/docker-image-puller/app.p
 WorkingDirectory=/media/vasko/Dev/dev/python/docker-image-puller
 User=vasko
 Environment=PYTHONUNBUFFERED=1
-Environment=TOKEN=tgf34vedb34rf23q
-Environment=PATH=/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/usr/local/bin
+EnvironmentFile=/media/vasko/Dev/dev/python/docker-image-puller/.env
 Restart=on-failure
