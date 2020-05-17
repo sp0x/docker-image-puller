@@ -20,7 +20,7 @@ class DockerHelper:
         self.run_dc(["pull", service])
 
     def up(self, service, attach=False):
-        self.run_dc(["up", "-d" if attach else "", service])
+        self.run_dc(["up", "-d" if not attach else "", service])
 
     def restart(self, service):
         self.run_dc(["restart", service])

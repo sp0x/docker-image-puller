@@ -11,9 +11,13 @@ from flask import jsonify
 
 import docker
 from docker_helper import DockerHelper
+import logging
 
 app = Flask(__name__)
 client = docker.from_env()
+log = logging.getLogger()
+log.addHandler(logging.StreamHandler())
+log.setLevel(logging.INFO)
 
 
 @app.route('/')
@@ -45,6 +49,7 @@ def image_puller():
 
     restart_containers = restart_containers == "true"
 
+    # Collect the containers
     old_containers = []
     for container in client.containers.list():
         imagename = container.attrs['Config']['Image']
@@ -54,41 +59,24 @@ def image_puller():
     if len(old_containers) is 0:
         return jsonify(success=False, error="No running containers found with the specified image"), 404
 
-    print('Updating', str(len(old_containers)), 'containers with', image, 'image')
+    logging.info(f"Updating {str(len(old_containers))} containers with {image} image")
     # Get the directory of the docker-compose service
-    probable_dc_dir = old_containers[0].labels["com.docker.compose.project.working_dir"]
-    service = old_containers[0].labels["com.docker.compose.service"]
-    dh = DockerHelper(probable_dc_dir)
-    print("Pulling new image")
-    dh.pull(service)
+    for container in old_containers:
+        probable_dc_dir = container.labels["com.docker.compose.project.working_dir"]
+        service = container.labels["com.docker.compose.service"]
+        dh = DockerHelper(probable_dc_dir)
+        log.info("Pulling new image")
+        dh.pull(service)
 
     if restart_containers is False:
         return jsonify(success=True, message=str(len(old_containers)) + " containers updated"), 200
 
-    # print('\tCreating new containers...')
-    # new_containers = []
-    # for container in old_containers:
-    #     if 'HOSTNAME' in os.environ and os.environ['HOSTNAME'] == container.attrs['Id']:
-    #         return jsonify(success=False,
-    #                        error="You can't restart the container where the puller script is running"), 403
-    #
-    #     new_cont = docker_helper.APIClient().create_container(container.attrs['Config']['Image'],
-    #                                                           environment=container.attrs['Config']['Env'],
-    #                                                           host_config=container.attrs['HostConfig'])
-    #
-    #     new_containers.append(client.containers.get(new_cont['Id']))
-    #
-    # print('\tStopping old containers...')
-    # for container in old_containers:
-    #     container.stop()
-    #
-    # print('\tStarting new containers...')
-    # for container in new_containers:
-    #     container.start()
-    #
-    # print('\tRemoving old containers...')
-    # for container in old_containers:
-    #     container.remove()
+    log.info('Recreating containers...')
+    for container in old_containers:
+        probable_dc_dir = container.labels["com.docker.compose.project.working_dir"]
+        service = container.labels["com.docker.compose.service"]
+        dh = DockerHelper(probable_dc_dir)
+        dh.up(service)
 
     return jsonify(success=True, message=str(len(old_containers)) + " containers updated and restarted"), 200
 
