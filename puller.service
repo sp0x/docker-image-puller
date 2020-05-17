@@ -1,0 +1,12 @@
+[Unit]
+Description=Docker-compose service updater service
+
+[Install]
+WantedBy=default.target
+
+[Service]
+ExecStart=/usr/bin/python3 /media/vasko/Dev/dev/python/docker-image-puller/app.py -p 8885
+Environment=PYTHONUNBUFFERED=1
+Environment=TOKEN=tgf34vedb34rf23q
+Environment=PATH=/bin/usr/local/sbin:/usr/bin:/usr/sbin
+Restart=on-failure
