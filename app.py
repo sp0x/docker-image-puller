@@ -33,7 +33,7 @@ def main():
     return jsonify(success=True), 200
 
 
-@app.route("/triggers/build")
+@app.route("/triggers/build", methods=['POST'])
 def trigger_build():
     token = getfld("token")
     repo = getfld("repo")
@@ -43,7 +43,6 @@ def trigger_build():
         return jsonify(success=False, error="Invalid token"), 403
     travis.trigger(repo, "master")
     return jsonify(success=True, message="Triggered build"), 200
-
 
 
 @app.route('/images/pull', methods=['POST'])
